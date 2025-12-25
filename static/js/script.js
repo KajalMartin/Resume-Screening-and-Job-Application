@@ -82,3 +82,22 @@ document.addEventListener('DOMContentLoaded', function() {
         errorCode.style.transform = 'scale(1)';
     }, 100);
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+            const labels = document.querySelectorAll('.user-type-label');
+            const inputs = document.querySelectorAll('input[name="user_type"]');
+            
+            labels.forEach(label => {
+                label.addEventListener('click', function() {
+                    // Remove selected class from all labels
+                    labels.forEach(l => l.classList.remove('user-type-selected'));
+                    
+                    // Add selected class to clicked label
+                    this.classList.add('user-type-selected');
+                    
+                    // Trigger corresponding radio button
+                    const inputId = this.getAttribute('for');
+                    document.getElementById(inputId).checked = true;
+                });
+            });
+        });
