@@ -600,14 +600,14 @@ body {
 
 .right-panel {
     flex: 1;
-    padding: 60px 40px;
+    padding: 35px 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .login-header {
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 .login-header h2 {
@@ -622,7 +622,7 @@ body {
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .input-with-icon {
@@ -677,7 +677,7 @@ input:focus {
 .divider {
     text-align: center;
     color: #64748b;
-    margin: 30px 0;
+    margin: 20px 0;
     position: relative;
 }
 
@@ -732,6 +732,57 @@ input:focus {
 
 .signup-link a:hover {
     text-decoration: underline;
+}
+
+/* Signup page toogle */
+.user-type-toggle {
+    display: flex;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-type-label {
+    flex: 1;
+    padding: 12px 10px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+}
+
+.user-type-label i {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.user-type-label span {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-type-selected {
+    background: var(--primary-gradient);
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.user-type-label:hover {
+    color: white;
+}
+.straight-field{
+    display: flex;
+    justify-content: space-between;
+}
+.space{
+    width: 2%;
 }
 
 /* ---- 404 Page ------ */
@@ -837,6 +888,67 @@ input:focus {
 .error-stat-label {
     font-size: 14px;
     color: #94a3b8;
+}
+
+
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+}
+
+.flash-message {
+    padding: 16px 24px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease-out;
+    transform: translateX(0);
+}
+
+.flash-message.success {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid #10b981;
+    color: #10b981;
+}
+
+.flash-message.error {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+    color: #ef4444;
+}
+
+.flash-message i {
+    font-size: 20px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 
 /* --------- Responsive Design -------- */
