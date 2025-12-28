@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerSync | {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar-hr-dashboard">
+        <a href="/" class="logo">
+            <i class="fas fa-brain"></i>
+            <span>CareerSync</span>
+        </a>
+        <div class="cta-buttons">
+            <span class="nav-link" style="margin-right: 15px;">Welcome, John Doe</span>
+            <a href="#" class="btn btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="profile-info">
+                        <!-- Name -->
+                        <h4>John Doe</h4>
+                        <span class="badge badge-hr">HR Manager</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Job Postings</span>
+                    <span class="sidebar-badge">6</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Candidates</span>
+                    <span class="sidebar-badge">24</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Applications</span>
+                    <span class="sidebar-badge">156</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-primary btn-block" id="postJobBtn">
+                    <i class="fas fa-plus"></i> Post New Job
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            {% block content %}
+            
+            {% endblock %}
+        </main>
+    </div>
+    <script src="{{url_for('static', filename = 'js/script.js')}}"></script>
+</body>
+</html>
