@@ -456,3 +456,224 @@ if (selectedCount > 0) {
     console.log(`${selectedCount} jobs selected for bulk actions`);
 }
 });
+
+// Initialize page with animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate progress bars
+            setTimeout(() => {
+                document.querySelectorAll('.ca-progress-fill, .ca-skill-match-fill').forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+
+            // Initialize job details
+            caUpdateJobAnalysis();
+        });
+
+        // Update analysis based on selected job
+        function caUpdateJobAnalysis() {
+            const jobSelect = document.getElementById('caJobSelect');
+            const selectedJob = jobSelect.value;
+            const jobDetails = {
+                job1: {
+                    company: 'Tech Corp Inc.',
+                    location: 'Remote',
+                    salary: '$120,000 - $150,000',
+                    experience: '5+ years',
+                    type: 'Full-time',
+                    overallScore: 92,
+                    skills: { python: 95, javascript: 88, aws: 82, docker: 75, ml: 65 },
+                    breakdown: { skills: 94, experience: 96, education: 88, culture: 85, salary: 78 }
+                },
+                job2: {
+                    company: 'Startup XYZ',
+                    location: 'New York, NY',
+                    salary: '$100,000 - $130,000',
+                    experience: '3+ years',
+                    type: 'Full-time',
+                    overallScore: 85,
+                    skills: { python: 92, javascript: 90, aws: 75, docker: 70, ml: 60 },
+                    breakdown: { skills: 88, experience: 82, education: 85, culture: 90, salary: 85 }
+                }
+            };
+
+            const job = jobDetails[selectedJob] || jobDetails.job1;
+            
+            // Update job details
+            document.querySelectorAll('.ca-job-detail-item')[0].querySelector('.ca-job-detail-value').textContent = job.company;
+            document.querySelectorAll('.ca-job-detail-item')[1].querySelector('.ca-job-detail-value').textContent = job.location;
+            document.querySelectorAll('.ca-job-detail-item')[2].querySelector('.ca-job-detail-value').textContent = job.salary;
+            document.querySelectorAll('.ca-job-detail-item')[3].querySelector('.ca-job-detail-value').textContent = job.experience;
+            document.querySelectorAll('.ca-job-detail-item')[4].querySelector('.ca-job-detail-value').textContent = job.type;
+
+            // Update overall score
+            document.querySelector('.ca-score-value').textContent = `${job.overallScore}%`;
+            document.querySelector('.ca-score-ring').style.background = `conic-gradient(
+                var(--ca-primary) 0% ${job.overallScore}%,
+                rgba(99, 102, 241, 0.2) ${job.overallScore}% 100%
+            )`;
+
+            // Update breakdown scores
+            const breakdownItems = document.querySelectorAll('.ca-breakdown-item');
+            breakdownItems[0].querySelector('.ca-breakdown-score').textContent = `${job.breakdown.skills}%`;
+            breakdownItems[0].querySelector('.ca-progress-fill').style.width = `${job.breakdown.skills}%`;
+            
+            breakdownItems[1].querySelector('.ca-breakdown-score').textContent = `${job.breakdown.experience}%`;
+            breakdownItems[1].querySelector('.ca-progress-fill').style.width = `${job.breakdown.experience}%`;
+            
+            breakdownItems[2].querySelector('.ca-breakdown-score').textContent = `${job.breakdown.education}%`;
+            breakdownItems[2].querySelector('.ca-progress-fill').style.width = `${job.breakdown.education}%`;
+            
+            breakdownItems[3].querySelector('.ca-breakdown-score').textContent = `${job.breakdown.culture}%`;
+            breakdownItems[3].querySelector('.ca-progress-fill').style.width = `${job.breakdown.culture}%`;
+            
+            breakdownItems[4].querySelector('.ca-breakdown-score').textContent = `${job.breakdown.salary}%`;
+            breakdownItems[4].querySelector('.ca-progress-fill').style.width = `${job.breakdown.salary}%`;
+
+            // Update skills matching
+            const skillItems = document.querySelectorAll('.ca-skill-match-item');
+            skillItems[0].querySelector('.ca-skill-percentage').textContent = `${job.skills.python}%`;
+            skillItems[0].querySelector('.ca-skill-match-fill').style.width = `${job.skills.python}%`;
+            
+            skillItems[1].querySelector('.ca-skill-percentage').textContent = `${job.skills.javascript}%`;
+            skillItems[1].querySelector('.ca-skill-match-fill').style.width = `${job.skills.javascript}%`;
+            
+            skillItems[2].querySelector('.ca-skill-percentage').textContent = `${job.skills.aws}%`;
+            skillItems[2].querySelector('.ca-skill-match-fill').style.width = `${job.skills.aws}%`;
+            
+            skillItems[3].querySelector('.ca-skill-percentage').textContent = `${job.skills.docker}%`;
+            skillItems[3].querySelector('.ca-skill-match-fill').style.width = `${job.skills.docker}%`;
+            
+            skillItems[4].querySelector('.ca-skill-percentage').textContent = `${job.skills.ml}%`;
+            skillItems[4].querySelector('.ca-skill-match-fill').style.width = `${job.skills.ml}%`;
+
+            // Update match badge
+            document.querySelector('.ca-match-badge').innerHTML = `<i class="fas fa-bolt"></i> ${job.overallScore}% Overall Match`;
+
+            // Update color coding based on scores
+            updateScoreColors();
+        }
+
+        function updateScoreColors() {
+            document.querySelectorAll('.ca-skill-percentage').forEach(element => {
+                const score = parseInt(element.textContent);
+                element.className = 'ca-skill-percentage ';
+                
+                if (score >= 90) element.className += 'ca-match-excellent';
+                else if (score >= 80) element.className += 'ca-match-good';
+                else if (score >= 70) element.className += 'ca-match-average';
+                else if (score >= 60) element.className += 'ca-match-poor';
+                else element.className += 'ca-match-weak';
+            });
+        }
+
+        // Action Functions
+        function caDownloadReport() {
+            alert('Downloading detailed analytics report...');
+            // In production: Generate and download PDF report
+        }
+
+        function caScheduleInterview() {
+            const candidateName = document.querySelector('.ca-profile-details h2').textContent;
+            const jobTitle = document.querySelector('.ca-profile-title').textContent;
+            alert(`Scheduling interview with ${candidateName} for ${jobTitle} position...`);
+            // In production: Open calendar/scheduling modal
+        }
+
+        function caShortlistCandidate() {
+            const candidateName = document.querySelector('.ca-profile-details h2').textContent;
+            alert(`Candidate ${candidateName} has been added to shortlist!`);
+            // In production: Update candidate status in database
+        }
+
+        function caRejectCandidate() {
+            const candidateName = document.querySelector('.ca-profile-details h2').textContent;
+            if (confirm(`Are you sure you want to reject ${candidateName}?`)) {
+                alert(`Candidate ${candidateName} has been rejected.`);
+                // In production: Update candidate status in database
+            }
+        }
+
+        function caRequestMoreInfo() {
+            const candidateName = document.querySelector('.ca-profile-details h2').textContent;
+            alert(`Requesting additional information from ${candidateName}...`);
+            // In production: Open email composer with template
+        }
+
+        function caCompareWithOthers() {
+            alert('Opening candidate comparison view...');
+            // In production: Redirect to comparison page
+        }
+
+        // Print/Export functions
+        function caPrintAnalysis() {
+            window.print();
+        }
+
+        // Simulate real-time updates
+        function caSimulateRealTimeUpdate() {
+            // This would be replaced with WebSocket or API calls in production
+            const scores = [92, 93, 94, 91, 90];
+            const randomScore = scores[Math.floor(Math.random() * scores.length)];
+            
+            if (Math.random() > 0.7) { // 30% chance of update
+                document.querySelector('.ca-score-value').textContent = `${randomScore}%`;
+                document.querySelector('.ca-match-badge').innerHTML = `<i class="fas fa-bolt"></i> ${randomScore}% Overall Match`;
+                
+                // Animate the update
+                document.querySelector('.ca-score-value').style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    document.querySelector('.ca-score-value').style.transform = 'scale(1)';
+                }, 300);
+            }
+        }
+
+        // Simulate periodic updates (every 30 seconds)
+        setInterval(caSimulateRealTimeUpdate, 30000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S to shortlist
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                caShortlistCandidate();
+            }
+            // Ctrl + I to schedule interview
+            if (e.ctrlKey && e.key === 'i') {
+                e.preventDefault();
+                caScheduleInterview();
+            }
+            // Escape to go back
+            if (e.key === 'Escape') {
+                window.history.back();
+            }
+        });
+
+        // Export data for API integration
+        function caGetAnalyticsData() {
+            return {
+                candidateId: 12345,
+                candidateName: "John Smith",
+                jobId: document.getElementById('caJobSelect').value,
+                overallScore: parseInt(document.querySelector('.ca-score-value').textContent),
+                breakdown: {
+                    skills: parseInt(document.querySelectorAll('.ca-breakdown-score')[0].textContent),
+                    experience: parseInt(document.querySelectorAll('.ca-breakdown-score')[1].textContent),
+                    education: parseInt(document.querySelectorAll('.ca-breakdown-score')[2].textContent),
+                    culture: parseInt(document.querySelectorAll('.ca-breakdown-score')[3].textContent),
+                    salary: parseInt(document.querySelectorAll('.ca-breakdown-score')[4].textContent)
+                },
+                skills: Array.from(document.querySelectorAll('.ca-skill-match-item')).map(item => ({
+                    skill: item.querySelector('.ca-skill-name').textContent,
+                    score: parseInt(item.querySelector('.ca-skill-percentage').textContent)
+                })),
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        // For API integration example
+        console.log('Analytics data structure:', caGetAnalyticsData());
