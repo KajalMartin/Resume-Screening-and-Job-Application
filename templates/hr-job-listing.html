@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block title %}HR Job Listing{% endblock %}
+
+{% block content %}
+    <!-- Navigation -->
+    <nav class="navbar-hr-dashboard">
+        <a href="/" class="logo">
+            <i class="fas fa-brain"></i>
+            <span>CareerSync</span>
+        </a>
+        <div class="cta-buttons">
+            <span class="nav-link" style="margin-right: 15px;">Welcome, John Doe</span>
+            <a href="#" class="btn btn-outline">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="profile-info">
+                        <!-- Name -->
+                        <h4>John Doe</h4>
+                        <span class="badge badge-hr">HR Manager</span>
+                    </div>
+                    <div class="settings">
+                        <a href="#">
+                            <i class="fa-solid fa-gear"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="" class="sidebar-link">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Job Postings</span>
+                    <span class="sidebar-badge">6</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Candidates</span>
+                    <span class="sidebar-badge">24</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Applications</span>
+                    <span class="sidebar-badge">156</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-primary btn-block" id="postJobBtn">
+                    <i class="fas fa-plus"></i> Post New Job
+                </button>
+            </div>
+        </aside>
+
+         <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Header -->
+            <div class="hr-page-header">
+                <div class="hr-header-left">
+                    <h1>Job Postings</h1>
+                    <p class="hr-subtitle">Manage and track all your job openings</p>
+                </div>
+                <div class="hr-header-right">
+                    <button class="hr-btn hr-btn-primary" id="hrPostNewJob">
+                        <i class="fas fa-plus"></i> Post New Job
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="hr-stats-bar">
+                <div class="hr-stat-card">
+                    <div class="hr-stat-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="hr-stat-content">
+                        <h3>8</h3>
+                        <p>Total Jobs</p>
+                    </div>
+                </div>
+                <div class="hr-stat-card">
+                    <div class="hr-stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="hr-stat-content">
+                        <h3>156</h3>
+                        <p>Total Applications</p>
+                    </div>
+                </div>
+                <div class="hr-stat-card">
+                    <div class="hr-stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="hr-stat-content">
+                        <h3>5</h3>
+                        <p>Active Jobs</p>
+                    </div>
+                </div>
+                <div class="hr-stat-card">
+                    <div class="hr-stat-icon">
+                        <i class="fas fa-archive"></i>
+                    </div>
+                    <div class="hr-stat-content">
+                        <h3>3</h3>
+                        <p>Closed Jobs</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="hr-filters-section">
+                <div class="hr-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search jobs by title, company, or location..." id="hrJobSearch">
+                </div>
+                <div class="hr-filter-controls">
+                    <select class="hr-select" id="hrStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="closed">Closed</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                    <select class="hr-select" id="hrSortBy">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="applications">Most Applications</option>
+                    </select>
+                    <button class="hr-btn hr-btn-outline" id="hrClearFilters">
+                        <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jobs Table -->
+            <div class="hr-table-container">
+                <div class="hr-table-header">
+                    <h3>All Job Postings</h3>
+                    <span class="hr-table-count">8 jobs found</span>
+                </div>
+                
+                <div class="hr-table-responsive">
+                    <table class="hr-data-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <label class="hr-checkbox">
+                                        <input type="checkbox" id="hrSelectAll">
+                                        <span class="hr-checkmark"></span>
+                                    </label>
+                                </th>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Applications</th>
+                                <th>Status</th>
+                                <th>Posted Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hr-table-row">
+                                <td>
+                                    <label class="hr-checkbox">
+                                        <input type="checkbox" class="hr-job-checkbox">
+                                        <span class="hr-checkmark"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="hr-job-info">
+                                        <strong>Senior Software Engineer</strong>
+                                        <div class="hr-job-meta">
+                                            <span class="hr-job-location">Remote</span>
+                                            <span class="hr-job-type">Full-time</span>
+                                            <span class="hr-job-salary">$120k - $150k</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Tech Corp Inc.</td>
+                                <td>
+                                    <div class="hr-applications-count">
+                                        <span class="hr-count-badge">42</span>
+                                        <span class="hr-count-trend positive">
+                                            <i class="fas fa-arrow-up"></i> 12%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="hr-status-badge hr-status-active">Active</span>
+                                </td>
+                                <td>Jan 15, 2024</td>
+                                <td>
+                                    <div class="hr-action-buttons">
+                                        <button class="hr-action-btn" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Applications">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hr-table-row">
+                                <td>
+                                    <label class="hr-checkbox">
+                                        <input type="checkbox" class="hr-job-checkbox">
+                                        <span class="hr-checkmark"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="hr-job-info">
+                                        <strong>UX Designer</strong>
+                                        <div class="hr-job-meta">
+                                            <span class="hr-job-location">New York</span>
+                                            <span class="hr-job-type">Full-time</span>
+                                            <span class="hr-job-salary">$90k - $120k</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Design Studio</td>
+                                <td>
+                                    <div class="hr-applications-count">
+                                        <span class="hr-count-badge">28</span>
+                                        <span class="hr-count-trend positive">
+                                            <i class="fas fa-arrow-up"></i> 8%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="hr-status-badge hr-status-active">Active</span>
+                                </td>
+                                <td>Jan 10, 2024</td>
+                                <td>
+                                    <div class="hr-action-buttons">
+                                        <button class="hr-action-btn" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Applications">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hr-table-row">
+                                <td>
+                                    <label class="hr-checkbox">
+                                        <input type="checkbox" class="hr-job-checkbox">
+                                        <span class="hr-checkmark"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="hr-job-info">
+                                        <strong>Data Scientist</strong>
+                                        <div class="hr-job-meta">
+                                            <span class="hr-job-location">San Francisco</span>
+                                            <span class="hr-job-type">Contract</span>
+                                            <span class="hr-job-salary">$100k - $140k</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Analytics Pro</td>
+                                <td>
+                                    <div class="hr-applications-count">
+                                        <span class="hr-count-badge">35</span>
+                                        <span class="hr-count-trend positive">
+                                            <i class="fas fa-arrow-up"></i> 15%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="hr-status-badge hr-status-active">Active</span>
+                                </td>
+                                <td>Jan 5, 2024</td>
+                                <td>
+                                    <div class="hr-action-buttons">
+                                        <button class="hr-action-btn" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Applications">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hr-table-row">
+                                <td>
+                                    <label class="hr-checkbox">
+                                        <input type="checkbox" class="hr-job-checkbox">
+                                        <span class="hr-checkmark"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="hr-job-info">
+                                        <strong>Product Manager</strong>
+                                        <div class="hr-job-meta">
+                                            <span class="hr-job-location">Remote</span>
+                                            <span class="hr-job-type">Full-time</span>
+                                            <span class="hr-job-salary">$130k - $180k</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Product Inc.</td>
+                                <td>
+                                    <div class="hr-applications-count">
+                                        <span class="hr-count-badge">18</span>
+                                        <span class="hr-count-trend negative">
+                                            <i class="fas fa-arrow-down"></i> 5%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="hr-status-badge hr-status-closed">Closed</span>
+                                </td>
+                                <td>Jan 1, 2024</td>
+                                <td>
+                                    <div class="hr-action-buttons">
+                                        <button class="hr-action-btn" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Applications">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hr-table-row">
+                                <td>
+                                    <label class="hr-checkbox">
+                                        <input type="checkbox" class="hr-job-checkbox">
+                                        <span class="hr-checkmark"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="hr-job-info">
+                                        <strong>DevOps Engineer</strong>
+                                        <div class="hr-job-meta">
+                                            <span class="hr-job-location">Austin</span>
+                                            <span class="hr-job-type">Full-time</span>
+                                            <span class="hr-job-salary">$110k - $140k</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Cloud Systems</td>
+                                <td>
+                                    <div class="hr-applications-count">
+                                        <span class="hr-count-badge">22</span>
+                                        <span class="hr-count-trend positive">
+                                            <i class="fas fa-arrow-up"></i> 10%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="hr-status-badge hr-status-active">Active</span>
+                                </td>
+                                <td>Dec 28, 2023</td>
+                                <td>
+                                    <div class="hr-action-buttons">
+                                        <button class="hr-action-btn" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="hr-action-btn" title="Applications">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="hr-pagination">
+                    <button class="hr-pagination-btn hr-pagination-prev" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div class="hr-pagination-pages">
+                        <button class="hr-pagination-page active">1</button>
+                        <button class="hr-pagination-page">2</button>
+                        <button class="hr-pagination-page">3</button>
+                        <span class="hr-pagination-dots">...</span>
+                        <button class="hr-pagination-page">8</button>
+                    </div>
+                    <button class="hr-pagination-btn hr-pagination-next">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bulk Actions Modal -->
+            <div class="hr-modal" id="hrBulkActionsModal">
+                <div class="hr-modal-content">
+                    <div class="hr-modal-header">
+                        <h3>Bulk Actions</h3>
+                        <button class="hr-modal-close" onclick="hrCloseBulkActionsModal()">×</button>
+                    </div>
+                    <div class="hr-modal-body">
+                        <p>Select an action for the selected jobs:</p>
+                        <div class="hr-bulk-actions">
+                            <button class="hr-bulk-action-btn" onclick="hrBulkAction('activate')">
+                                <i class="fas fa-play"></i> Activate Jobs
+                            </button>
+                            <button class="hr-bulk-action-btn" onclick="hrBulkAction('close')">
+                                <i class="fas fa-stop"></i> Close Jobs
+                            </button>
+                            <button class="hr-bulk-action-btn hr-bulk-action-danger" onclick="hrBulkAction('delete')">
+                                <i class="fas fa-trash"></i> Delete Jobs
+                            </button>
+                            <button class="hr-bulk-action-btn" onclick="hrBulkAction('duplicate')">
+                                <i class="fas fa-copy"></i> Duplicate Jobs
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hr-modal-footer">
+                        <button class="hr-btn hr-btn-outline" onclick="hrCloseBulkActionsModal()">Cancel</button>
+                        <button class="hr-btn hr-btn-primary" onclick="hrConfirmBulkActions()">Apply Actions</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}

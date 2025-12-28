@@ -275,3 +275,184 @@ const sampleCandidates = [
 ];
 
 console.log('Sample data loaded:', { sampleJobs, sampleCandidates });
+
+document.addEventListener('DOMContentLoaded', function() {
+// Search functionality
+const searchInput = document.getElementById('hrJobSearch');
+searchInput.addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('.hr-table-row');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+    
+    updateJobCount();
+});
+
+// Filter functionality
+const statusFilter = document.getElementById('hrStatusFilter');
+const sortBy = document.getElementById('hrSortBy');
+
+statusFilter.addEventListener('change', filterJobs);
+sortBy.addEventListener('change', filterJobs);
+
+function filterJobs() {
+    const status = statusFilter.value;
+    const sort = sortBy.value;
+    const rows = Array.from(document.querySelectorAll('.hr-table-row'));
+    
+    // Filter by status
+    rows.forEach(row => {
+        if (status === '') {
+            row.style.display = '';
+        } else {
+            const statusBadge = row.querySelector('.hr-status-badge');
+            const rowStatus = statusBadge.classList.contains('hr-status-active') ? 'active' :
+                            statusBadge.classList.contains('hr-status-closed') ? 'closed' : 'draft';
+            row.style.display = rowStatus === status ? '' : 'none';
+        }
+    });
+
+    // Sort rows
+    const visibleRows = rows.filter(row => row.style.display !== 'none');
+    
+    visibleRows.sort((a, b) => {
+        switch(sort) {
+            case 'newest':
+                const dateA = new Date(a.querySelector('td:nth-child(6)').textContent);
+                const dateB = new Date(b.querySelector('td:nth-child(6)').textContent);
+                return dateB - dateA;
+                
+            case 'oldest':
+                const dateA2 = new Date(a.querySelector('td:nth-child(6)').textContent);
+                const dateB2 = new Date(b.querySelector('td:nth-child(6)').textContent);
+                return dateA2 - dateB2;
+                
+            case 'applications':
+                const appsA = parseInt(a.querySelector('.hr-count-badge').textContent);
+                const appsB = parseInt(b.querySelector('.hr-count-badge').textContent);
+                return appsB - appsA;
+                
+            default:
+                return 0;
+        }
+    });
+
+    // Reorder table rows
+    const tbody = document.querySelector('.hr-data-table tbody');
+    visibleRows.forEach(row => tbody.appendChild(row));
+    
+    updateJobCount();
+}
+
+// Select all checkbox
+const selectAllCheckbox = document.getElementById('hrSelectAll');
+const jobCheckboxes = document.querySelectorAll('.hr-job-checkbox');
+
+selectAllCheckbox.addEventListener('change', function() {
+    jobCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+});
+
+// Clear filters
+document.getElementById('hrClearFilters').addEventListener('click', function() {
+    searchInput.value = '';
+    statusFilter.value = '';
+    sortBy.value = 'newest';
+    
+    const rows = document.querySelectorAll('.hr-table-row');
+    rows.forEach(row => row.style.display = '');
+    
+    updateJobCount();
+});
+
+// Post new job button
+document.getElementById('hrPostNewJob').addEventListener('click', function() {
+    // Redirect to job posting page or open modal
+    alert('Opening job posting form...');
+});
+
+// Action buttons
+document.querySelectorAll('.hr-action-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const action = this.querySelector('i').className;
+        const row = this.closest('.hr-table-row');
+        const jobTitle = row.querySelector('.hr-job-info strong').textContent;
+        
+        if (action.includes('fa-trash')) {
+            if (confirm(`Are you sure you want to delete "${jobTitle}"?`)) {
+                row.remove();
+                updateJobCount();
+            }
+        } else if (action.includes('fa-eye')) {
+            alert(`Viewing details for: ${jobTitle}`);
+        } else if (action.includes('fa-edit')) {
+            alert(`Editing: ${jobTitle}`);
+        } else if (action.includes('fa-users')) {
+            alert(`Viewing applications for: ${jobTitle}`);
+        }
+    });
+});
+
+// Row click
+document.querySelectorAll('.hr-table-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+        if (!e.target.closest('.hr-checkbox') && !e.target.closest('.hr-action-btn')) {
+            const jobTitle = this.querySelector('.hr-job-info strong').textContent;
+            alert(`Opening job details for: ${jobTitle}`);
+        }
+    });
+});
+
+// Pagination
+document.querySelectorAll('.hr-pagination-page').forEach(page => {
+    page.addEventListener('click', function() {
+        document.querySelectorAll('.hr-pagination-page').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+function updateJobCount() {
+    const visibleRows = document.querySelectorAll('.hr-table-row[style!="display: none;"]');
+    document.querySelector('.hr-table-count').textContent = `${visibleRows.length} jobs found`;
+}
+});
+
+// Modal functions
+function hrOpenBulkActionsModal() {
+document.getElementById('hrBulkActionsModal').style.display = 'flex';
+}
+
+function hrCloseBulkActionsModal() {
+document.getElementById('hrBulkActionsModal').style.display = 'none';
+}
+
+function hrBulkAction(action) {
+alert(`Bulk action selected: ${action}`);
+}
+
+function hrConfirmBulkActions() {
+const selectedJobs = Array.from(document.querySelectorAll('.hr-job-checkbox:checked'))
+    .map(cb => cb.closest('.hr-table-row').querySelector('.hr-job-info strong').textContent);
+
+if (selectedJobs.length === 0) {
+    alert('Please select at least one job');
+    return;
+}
+
+alert(`Applying bulk action to: ${selectedJobs.join(', ')}`);
+hrCloseBulkActionsModal();
+}
+
+// Open bulk actions if jobs are selected
+document.addEventListener('click', function() {
+const selectedCount = document.querySelectorAll('.hr-job-checkbox:checked').length;
+if (selectedCount > 0) {
+    // Show bulk actions button or panel
+    console.log(`${selectedCount} jobs selected for bulk actions`);
+}
+});

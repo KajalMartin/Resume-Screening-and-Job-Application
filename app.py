@@ -259,6 +259,10 @@ def post_job():
     return redirect(url_for('hr_dashboard'))
 
 
+@app.route('/job-postings')
+def job_postings():
+  return render_template('hr-job-listing.html')
+
 # Error Page - 404
 @app.errorhandler(404)
 def page_not_found(e):
