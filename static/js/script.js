@@ -101,3 +101,177 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         });
+
+// Set current date
+document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+});
+
+// Modal elements
+const jobModal = document.getElementById('jobModal');
+const candidateModal = document.getElementById('candidateModal');
+const postJobBtn = document.getElementById('postJobBtn');
+const closeJobModal = document.getElementById('closeJobModal');
+const cancelJob = document.getElementById('cancelJob');
+const closeCandidateModal = document.getElementById('closeCandidateModal');
+const postJobForm = document.getElementById('postJobForm');
+const viewProfileButtons = document.querySelectorAll('.view-profile');
+const viewAllJobsBtn = document.getElementById('viewAllJobs');
+const viewAllCandidatesBtn = document.getElementById('viewAllCandidates');
+
+// Job Modal Functions
+function openJobModal() {
+    jobModal.style.display = 'flex';
+}
+
+function closeJobModalFunc() {
+    jobModal.style.display = 'none';
+    postJobForm.reset();
+}
+
+// Candidate Modal Functions
+function openCandidateModal() {
+    candidateModal.style.display = 'flex';
+    updateProgressCircles();
+}
+
+function closeCandidateModalFunc() {
+    candidateModal.style.display = 'none';
+}
+
+// Update progress circles
+function updateProgressCircles() {
+    const progressCircles = document.querySelectorAll('.circle-progress');
+    progressCircles.forEach(circle => {
+        const progress = circle.getAttribute('data-progress') || 92;
+        circle.style.background = `conic-gradient(var(--primary-color) 0% ${progress}%, rgba(59, 130, 246, 0.2) ${progress}% 100%)`;
+    });
+}
+
+// Form submission
+postJobForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = new FormData(this);
+    const jobData = Object.fromEntries(formData);
+    
+    // Here you would normally send data to server
+    console.log('Job posting data:', jobData);
+    
+    // Show success message
+    alert('Job posted successfully! It will appear in your dashboard shortly.');
+    
+    // Close modal
+    closeJobModalFunc();
+    
+    // In a real app, you would update the dashboard here
+});
+
+// Job selection for analysis
+const jobSelect = document.getElementById('selectJobForAnalysis');
+if (jobSelect) {
+    jobSelect.addEventListener('change', function() {
+        // In a real app, you would fetch job details based on selection
+        const jobTitle = this.options[this.selectedIndex].text;
+        console.log('Selected job for analysis:', jobTitle);
+        
+        // Update match score based on selection (simulated)
+        const score = Math.floor(Math.random() * 30) + 70; // 70-100%
+        document.querySelector('.circle-progress').setAttribute('data-progress', score);
+        document.querySelector('.score-text').textContent = `${score}%`;
+        updateProgressCircles();
+    });
+}
+
+// Event Listeners
+postJobBtn.addEventListener('click', openJobModal);
+closeJobModal.addEventListener('click', closeJobModalFunc);
+cancelJob.addEventListener('click', closeJobModalFunc);
+closeCandidateModal.addEventListener('click', closeCandidateModalFunc);
+
+viewProfileButtons.forEach(button => {
+    button.addEventListener('click', openCandidateModal);
+});
+
+viewAllJobsBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    alert('This would navigate to all jobs page in a real application');
+    // window.location.href = '/dashboard/hr/jobs';
+});
+
+viewAllCandidatesBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    alert('This would navigate to all candidates page in a real application');
+    // window.location.href = '/dashboard/hr/candidates';
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+    if (event.target === jobModal) {
+        closeJobModalFunc();
+    }
+    if (event.target === candidateModal) {
+        closeCandidateModalFunc();
+    }
+});
+
+// Sidebar navigation active state
+const sidebarLinks = document.querySelectorAll('.sidebar-link');
+sidebarLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        
+        // In a real app, you would load the corresponding content
+        const page = this.querySelector('span').textContent.toLowerCase();
+        console.log('Navigating to:', page);
+    });
+});
+
+// Initialize progress circles on load
+document.addEventListener('DOMContentLoaded', updateProgressCircles);
+
+// Simulate data loading
+setTimeout(() => {
+    console.log('Dashboard data loaded successfully');
+    // You could add loading indicators here
+}, 1000);
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl + N to open new job modal
+    if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        openJobModal();
+    }
+    
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        closeJobModalFunc();
+        closeCandidateModalFunc();
+    }
+});
+
+// Sample data for demonstration (would come from backend in real app)
+const sampleJobs = [
+    { title: "Senior Software Engineer", company: "Tech Corp Inc.", applications: 42, date: "Jan 15, 2024", status: "active" },
+    { title: "UX Designer", company: "Design Studio", applications: 28, date: "Jan 10, 2024", status: "active" },
+    { title: "Data Scientist", company: "Analytics Pro", applications: 35, date: "Jan 5, 2024", status: "active" },
+    { title: "Product Manager", company: "Product Inc.", applications: 18, date: "Jan 1, 2024", status: "closed" },
+    { title: "DevOps Engineer", company: "Cloud Systems", applications: 22, date: "Dec 28, 2023", status: "active" },
+];
+
+const sampleCandidates = [
+    { name: "John Smith", title: "Senior Software Engineer", experience: "5+ years", education: "Master's", match: 92 },
+    { name: "Emma Wilson", title: "UX Designer", experience: "3-5 years", education: "Bachelor's", match: 88 },
+    { name: "Michael Chen", title: "Data Scientist", experience: "2-4 years", education: "PhD", match: 95 },
+    { name: "Sarah Johnson", title: "Product Manager", experience: "7+ years", education: "MBA", match: 85 },
+    { name: "David Brown", title: "DevOps Engineer", experience: "4-6 years", education: "Bachelor's", match: 90 },
+];
+
+console.log('Sample data loaded:', { sampleJobs, sampleCandidates });
