@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CareerSync | {% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
         </a>
         <div class="cta-buttons">
             <span class="nav-link" style="margin-right: 15px;">Welcome, John Doe</span>
-            <a href="#" class="btn btn-outline">Logout</a>
+            <a href="{{url_for('login')}}" class="btn btn-outline">Logout</a>
         </div>
     </nav>
 
@@ -38,16 +38,16 @@
             </div>
 
             <nav class="sidebar-nav">
-                <a href="#" class="sidebar-link active">
+                <a href="/dashboard" class="sidebar-link active">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="/job-postings" class="sidebar-link">
                     <i class="fas fa-briefcase"></i>
                     <span>Job Postings</span>
                     <span class="sidebar-badge">6</span>
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="/candidate-list" class="sidebar-link">
                     <i class="fas fa-users"></i>
                     <span>Candidates</span>
                     <span class="sidebar-badge">24</span>
@@ -57,7 +57,7 @@
                     <span>Applications</span>
                     <span class="sidebar-badge">156</span>
                 </a>
-                <a href="#" class="sidebar-link">
+                <a href="/analytics" class="sidebar-link">
                     <i class="fas fa-chart-line"></i>
                     <span>Analytics</span>
                 </a>

@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareerSync | Home Page</title>
-    <link rel="stylesheet" href="../../website/static/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Home Page{% endblock %}\
+
+{% block content %}
     <!-- Navigation -->
     <nav class="navbar">
-        <a href="index.html" class="logo">
+        <a href="{{ url_for('home') }}" class="logo">
             <i class="fas fa-brain"></i>
             <span>CareerSync</span>
         </a>
@@ -21,8 +16,8 @@
             <a href="#" class="nav-link">Resources</a>
         </div>
         <div class="cta-buttons">
-            <a href="login.html" class="btn btn-outline">Sign In</a>
-            <a href="#" class="btn btn-primary">Explore</a>
+            <a href="/login" class="btn btn-outline">Sign In</a>
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Explore</a>
         </div>
     </nav>
 
@@ -183,7 +178,7 @@
             <p>Join thousands of professionals who have accelerated their career growth with AI-powered insights and intelligent job matching.</p>
             
             <div class="cta-buttons-large">
-                <a href="signup.html" class="btn btn-primary btn-large">Start Free Trial</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-primary btn-large">Start Free Trial</a>
                 <a href="#" class="btn btn-outline btn-large">Schedule a Demo</a>
             </div>
             
@@ -247,6 +242,4 @@
             <p>&copy; 2025 CareerSync. All rights reserved.</p>
         </div>
     </footer>
-    <script src="{{url_for('static', filename = 'js/script.js')}}"></script>
-</body>
-</html>
+{% endblock %}
