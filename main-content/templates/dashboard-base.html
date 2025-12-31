@@ -71,7 +71,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <button class="btn btn-primary btn-block" id="postJobBtn">
+                <button class="btn btn-primary btn-block post-job-btn" id="postJobBtn">
                     <i class="fas fa-plus"></i> Post New Job
                 </button>
             </div>
@@ -476,6 +476,7 @@
         </div>
     </div>
 
+    {% block extra_modal %}{% endblock %}
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

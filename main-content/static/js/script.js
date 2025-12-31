@@ -20,7 +20,7 @@ let currentCallback = null;
 // JOB PREVIEW MODAL FUNCTIONS
 // ===========================================
 
-function openJobPreview(jobId) {
+function openJobPreview(jobId, openEdit = false) {
     currentJobId = jobId;
     
     // Reset modal to preview mode
@@ -28,7 +28,8 @@ function openJobPreview(jobId) {
     document.getElementById('previewModalTitle').textContent = 'Job Preview';
     
     // Show loading state
-    document.querySelector('.preview-content').classList.add('loading');
+    const previewContentEl = document.querySelector('.preview-content');
+    if (previewContentEl) previewContentEl.classList.add('loading');
     
     // Fetch job details
     fetch(`/api/job/${jobId}`)
@@ -39,9 +40,16 @@ function openJobPreview(jobId) {
         .then(job => {
             // Update preview content
             updateJobPreview(job);
-            document.querySelector('.preview-content').classList.remove('loading');
+            if (previewContentEl) previewContentEl.classList.remove('loading');
             jobPreviewModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+
+            // If caller requested opening directly in edit mode, switch after content is ready
+            if (openEdit) {
+                setTimeout(() => {
+                    try { switchToEditMode(); } catch (err) { console.error(err); }
+                }, 50);
+            }
         })
         .catch(error => {
             console.error('Error fetching job:', error);
@@ -783,7 +791,7 @@ if (currentDateElement) {
 // Modal elements
 const jobModal = document.getElementById('jobModal');
 const candidateModal = document.getElementById('candidateModal');
-const postJobBtn = document.getElementById('postJobBtn');
+const postJobBtns = document.querySelectorAll('.post-job-btn');
 const closeJobModal = document.getElementById('closeJobModal');
 const cancelJob = document.getElementById('cancelJob');
 const closeCandidateModal = document.getElementById('closeCandidateModal');
@@ -875,7 +883,7 @@ if (postJobForm) {
             // Optional: Show loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+            submitBtn.innerHTML = '<span class="loading-spinner" aria-hidden="true"></span> Posting...';
             submitBtn.disabled = true;
             
             // Simulate processing (in real app, this would be actual form submission)
@@ -904,8 +912,8 @@ if (jobSelect) {
 }
 
 // Event Listeners for dashboard
-if (postJobBtn) {
-    postJobBtn.addEventListener('click', openJobModal);
+if (postJobBtns && postJobBtns.length) {
+    postJobBtns.forEach(btn => btn.addEventListener('click', openJobModal));
 }
 
 if (closeJobModal) {
@@ -1572,3 +1580,331 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Job postings page detected');
     }
 });
+
+// Job Postings functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Post New Job buttons (header + sidebar)
+    document.querySelectorAll('.post-job-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('jobModal').style.display = 'flex';
+        });
+    });
+
+    // View applications button
+    document.querySelectorAll('.view-applications-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const jobId = this.getAttribute('data-job-id');
+            openApplicationsModal(jobId);
+        });
+    });
+
+    // Edit job button — open preview and immediately switch to edit mode
+    document.querySelectorAll('.edit-job-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const jobId = this.getAttribute('data-job-id') || this.closest('tr')?.getAttribute('data-job-id');
+            if (!jobId) {
+                console.warn('Edit button clicked but no jobId found');
+                return;
+            }
+            openJobPreview(jobId, true);
+        });
+    });
+
+    // Delete job button
+    document.querySelectorAll('.delete-job-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const jobId = this.getAttribute('data-job-id');
+            const jobRow = this.closest('tr');
+            const jobTitle = jobRow.querySelector('td strong').textContent;
+            
+            showConfirmation(
+                'Delete Job Posting',
+                `Are you sure you want to delete "${jobTitle}"? This action cannot be undone.`,
+                () => deleteJob(jobId, jobRow)
+            );
+        });
+    });
+
+    // Applications modal close button
+    const closeApplicationsBtn = document.getElementById('closeApplicationsBtn');
+    if (closeApplicationsBtn) {
+        closeApplicationsBtn.addEventListener('click', function() {
+            document.getElementById('applicationsModal').style.display = 'none';
+        });
+    }
+
+    // Close applications modal button
+    const closeApplicationsModal = document.getElementById('closeApplicationsModal');
+    if (closeApplicationsModal) {
+        closeApplicationsModal.addEventListener('click', function() {
+            document.getElementById('applicationsModal').style.display = 'none';
+        });
+    }
+
+    // Status filter for applications
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            filterApplications(this.value);
+        });
+    }
+
+    // Search applications
+    const searchApplications = document.getElementById('searchApplications');
+    if (searchApplications) {
+        searchApplications.addEventListener('input', function() {
+            searchApplicationsList(this.value.toLowerCase());
+        });
+    }
+});
+
+// Open applications modal and load data
+function openApplicationsModal(jobId) {
+    const modal = document.getElementById('applicationsModal');
+    const modalTitle = document.getElementById('applicationsModalTitle');
+    const jobTitleElement = document.getElementById('applicationsJobTitle');
+    const tableBody = document.getElementById('applicationsTableBody');
+    
+    // Show loading state
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem;">
+                <div class="simple-loading">
+                    <span class="loading-spinner large" aria-hidden="true"></span>
+                    <p>Loading applications...</p>
+                </div>
+            </td>
+        </tr>
+    `;
+    
+    modal.style.display = 'flex';
+    
+    // Fetch job details and applications
+    fetch(`/api/job/${jobId}`)
+        .then(response => response.json())
+        .then(job => {
+            modalTitle.textContent = `Applications for ${job.title}`;
+            jobTitleElement.textContent = job.title;
+            
+            // Update stats
+            document.getElementById('totalApplicationsCount').textContent = 'Loading...';
+            document.getElementById('activeApplicationsCount').textContent = 'Loading...';
+            
+            // Load applications
+            loadApplications(jobId);
+        })
+        .catch(error => {
+            console.error('Error loading job details:', error);
+            showNotification('Error loading job details', 'error');
+        });
+}
+
+// Load applications for a job
+function loadApplications(jobId) {
+    fetch(`/api/applications/${jobId}`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('applicationsTableBody');
+            
+            if (data.applications && data.applications.length > 0) {
+                // Update stats
+                document.getElementById('totalApplicationsCount').textContent = 
+                    `${data.applications.length} applications`;
+                
+                const activeCount = data.applications.filter(app => app.status === 'pending' || app.status === 'shortlisted').length;
+                document.getElementById('activeApplicationsCount').textContent = 
+                    `${activeCount} active`;
+                
+                // Render applications
+                renderApplications(data.applications);
+            } else {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem;">
+                            <p>No applications found for this job.</p>
+                        </td>
+                    </tr>
+                `;
+                
+                document.getElementById('totalApplicationsCount').textContent = '0 applications';
+                document.getElementById('activeApplicationsCount').textContent = '0 active';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading applications:', error);
+            showNotification('Error loading applications', 'error');
+        });
+}
+
+// Render applications in table
+function renderApplications(applications) {
+    const tableBody = document.getElementById('applicationsTableBody');
+    tableBody.innerHTML = '';
+    
+    applications.forEach(app => {
+        const candidate = app.candidate;
+        const initials = candidate.name.split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+        
+        const statusClass = `status-${app.status}`;
+        const statusText = app.status.charAt(0).toUpperCase() + app.status.slice(1);
+        
+        const appliedDate = new Date(app.applied_at);
+        const formattedDate = appliedDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <a href="#" class="candidate-profile-link" data-candidate-id="${candidate.id}">
+                    <div class="candidate-avatar-small">${initials}</div>
+                    <div>
+                        <strong>${candidate.name}</strong>
+                        ${candidate.experience ? `<div class="text-muted">${candidate.experience}</div>` : ''}
+                    </div>
+                </a>
+            </td>
+            <td>${candidate.email}</td>
+            <td>${candidate.phone || 'N/A'}</td>
+            <td>${formattedDate}</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td>
+                <div class="application-actions">
+                    <button class="btn-icon view-candidate-btn" title="View Profile" data-candidate-id="${candidate.id}">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-icon update-status-btn" title="Update Status" data-application-id="${app.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    // Add event listeners for candidate profile links
+    document.querySelectorAll('.candidate-profile-link, .view-candidate-btn').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const candidateId = this.getAttribute('data-candidate-id') || 
+                               this.closest('.view-candidate-btn').getAttribute('data-candidate-id');
+            openCandidatePreview(candidateId);
+        });
+    });
+    
+    // Add event listeners for update status buttons
+    document.querySelectorAll('.update-status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const applicationId = this.getAttribute('data-application-id');
+            updateApplicationStatus(applicationId);
+        });
+    });
+}
+
+// Filter applications by status
+function filterApplications(status) {
+    const rows = document.querySelectorAll('#applicationsTableBody tr');
+    
+    rows.forEach(row => {
+        if (status === 'all') {
+            row.style.display = '';
+        } else {
+            const statusElement = row.querySelector('.status-badge');
+            const rowStatus = statusElement ? statusElement.textContent.toLowerCase() : '';
+            row.style.display = rowStatus === status ? '' : 'none';
+        }
+    });
+}
+
+// Search applications
+function searchApplicationsList(query) {
+    const rows = document.querySelectorAll('#applicationsTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
+// Delete job
+function deleteJob(jobId, jobRow) {
+    fetch(`/api/job/${jobId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove row from table
+            jobRow.remove();
+            showNotification('Job deleted successfully', 'success');
+            
+            // Update job count in sidebar if it exists
+            const jobBadge = document.querySelector('.sidebar-link[href*="job_postings"] .sidebar-badge');
+            if (jobBadge) {
+                const currentCount = parseInt(jobBadge.textContent) || 0;
+                jobBadge.textContent = Math.max(0, currentCount - 1);
+            }
+        } else {
+            showNotification(data.error || 'Failed to delete job', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting job:', error);
+        showNotification('Error deleting job', 'error');
+    });
+}
+
+// Update application status
+function updateApplicationStatus(applicationId) {
+    // You can implement a modal for updating application status
+    showNotification('Update application status feature coming soon', 'info');
+}
+
+// Helper function for notifications
+function showNotification(message, type = 'success') {
+    const toast = document.getElementById('notificationToast');
+    const messageElement = document.getElementById('toastMessage');
+    const icon = toast.querySelector('.toast-icon');
+    
+    messageElement.textContent = message;
+    
+    // Set icon based on type
+    switch(type) {
+        case 'error':
+            icon.className = 'fas fa-exclamation-circle toast-icon';
+            toast.style.background = '#fee2e2';
+            toast.style.color = '#991b1b';
+            break;
+        case 'warning':
+            icon.className = 'fas fa-exclamation-triangle toast-icon';
+            toast.style.background = '#fef3c7';
+            toast.style.color = '#92400e';
+            break;
+        case 'info':
+            icon.className = 'fas fa-info-circle toast-icon';
+            toast.style.background = '#dbeafe';
+            toast.style.color = '#1e40af';
+            break;
+        default:
+            icon.className = 'fas fa-check-circle toast-icon';
+            toast.style.background = '#d1fae5';
+            toast.style.color = '#065f46';
+    }
+    
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
