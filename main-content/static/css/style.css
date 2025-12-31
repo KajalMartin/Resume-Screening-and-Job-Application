@@ -2031,6 +2031,20 @@ input:focus {
     }
 }
 
+/* Simple loader styles */
+.simple-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.loading-spinner.large {
+    width: 36px;
+    height: 36px;
+    border-width: 4px;
+    margin-right: 0;
+}
+
 /* Scrollbar Styling for Modals */
 .modal-content::-webkit-scrollbar {
     width: 8px;
@@ -2048,4 +2062,119 @@ input:focus {
 
 .modal-content::-webkit-scrollbar-thumb:hover {
     background: #2563eb;
+}
+
+/* -------------------- Job Posting Page ---------------------- */
+/* Applications modal styles */
+.applications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.applications-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-item {
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.applications-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.filter-group label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.candidate-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.candidate-avatar-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.application-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-shortlisted {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-hired {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+}
+
+.loading-spinner i {
+    font-size: 2rem;
+    color: #3b82f6;
+}
+
+/* ---------------- Applicants List Modal -------------------- */
+.form-control{
+    background: var(--card-bg);
+    color: #fff;
 }

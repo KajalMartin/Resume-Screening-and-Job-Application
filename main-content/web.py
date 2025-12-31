@@ -527,6 +527,52 @@ def analytics():
                          active_jobs=active_jobs,
                          total_applications=total_applications)
 
+# ------------------ Job Posting Action Buttons -----------------------------
+@app.route('/api/applications/<int:job_id>')
+def get_job_applications(job_id):
+    if 'user_id' not in session or session['user_type'] != 'hr':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    job = JobPosting.query.get_or_404(job_id)
+    
+    # Check if user owns this job
+    if job.hr_id != session['user_id']:
+        return jsonify({'error': 'Forbidden'}), 403
+    
+    # Get applications with candidate details
+    applications = Application.query\
+        .filter_by(job_id=job_id)\
+        .options(db.joinedload(Application.candidate))\
+        .order_by(Application.applied_at.desc())\
+        .all()
+    
+    applications_data = []
+    for app in applications:
+        applications_data.append({
+            'id': app.id,
+            'candidate_id': app.candidate_id,
+            'job_id': app.job_id,
+            'status': app.status,
+            'applied_at': app.applied_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'candidate': {
+                'id': app.candidate.id,
+                'name': app.candidate.name,
+                'email': app.candidate.email,
+                'phone': app.candidate.phone,
+                'skills': app.candidate.skills,
+                'experience': app.candidate.experience,
+                'education': app.candidate.education,
+                'resume_url': app.candidate.resume_url
+            }
+        })
+    
+    return jsonify({
+        'job_id': job_id,
+        'job_title': job.title,
+        'applications': applications_data,
+        'total': len(applications_data)
+    })
+
 # Error Page - 404
 @app.errorhandler(404)
 def page_not_found(e):
