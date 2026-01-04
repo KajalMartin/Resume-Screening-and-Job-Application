@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Home Page{% endblock %}\
+{% block title %}Home Page{% endblock %}
 
 {% block content %}
     <!-- Navigation -->
@@ -11,12 +11,12 @@
         </a>
 
         <div class="nav-links">
-            <a href="#" class="nav-link">Features</a>
+            <a href="#" class="nav-link">Jobs</a>
             <a href="#" class="nav-link">Pricing</a>
             <a href="#" class="nav-link">Resources</a>
         </div>
         <div class="cta-buttons">
-            <a href="{{ url_for('login') }}" class="btn btn-outline">Sign In</a>
+            <a href="/login" class="btn btn-outline">Sign In</a>
             <a href="{{ url_for('home') }}" class="btn btn-primary">Explore</a>
         </div>
     </nav>
