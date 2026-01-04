@@ -5,129 +5,32 @@ from datetime import datetime
 import os
 from flask_bcrypt import Bcrypt
 
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///careersync.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+# Use centralized models and extensions to avoid circular imports
+from models import db, bcrypt, User, JobPosting, Candidate, Application
 
-# -------------------------- Database Models -------------------
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
-    user_type = db.Column(db.String(20), nullable=False)  # 'jobseeker' or 'hr'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationship with job postings
-    job_postings = db.relationship('JobPosting', backref='hr', lazy=True)
-    
-    def set_password(self, password):
-        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password, password)
-    
-    def get_initials(self):
-        """Get first letters of first two words for avatar"""
-        words = self.name.split()
-        if len(words) >= 2:
-            return f"{words[0][0]}{words[1][0]}".upper()
-        elif len(words) == 1:
-            return words[0][0].upper() * 2
-        else:
-            return "US"
-
-class JobPosting(db.Model):
-    __tablename__ = 'job_posting'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    company = db.Column(db.String(200), nullable=False)
-    location = db.Column(db.String(100))
-    salary_range = db.Column(db.String(100))
-    description = db.Column(db.Text, nullable=False)
-    requirements = db.Column(db.Text, nullable=False)
-    job_type = db.Column(db.String(50), nullable=False)  # fulltime, parttime, contract, remote
-    status = db.Column(db.String(20), default='active')  # active, closed, draft
-    hr_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationship with applications
-    applications = db.relationship('Application', backref='job', lazy=True)
-    
-    def to_dict(self):
-        """Convert job posting to dictionary"""
-        return {
-            'id': self.id,
-            'title': self.title,
-            'company': self.company,
-            'location': self.location,
-            'salary_range': self.salary_range,
-            'description': self.description,
-            'requirements': self.requirements,
-            'job_type': self.job_type,
-            'status': self.status,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S')
-        }
-
-class Candidate(db.Model):
-    __tablename__ = 'candidate'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    phone = db.Column(db.String(20))
-    resume_url = db.Column(db.String(500))
-    skills = db.Column(db.Text)
-    experience = db.Column(db.String(100))
-    education = db.Column(db.String(200))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def to_dict(self):
-        """Convert candidate to dictionary"""
-        return {
-            'id': self.id,
-            'name': self.name,
-            'email': self.email,
-            'phone': self.phone,
-            'skills': self.skills,
-            'experience': self.experience,
-            'education': self.education,
-            'resume_url': self.resume_url,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S')
-        }
-    
-    def get_initials(self):
-        """Get initials for avatar"""
-        words = self.name.split()
-        if len(words) >= 2:
-            return f"{words[0][0]}{words[1][0]}".upper()
-        elif len(words) == 1:
-            return words[0][0].upper() * 2
-        else:
-            return "CD"
-
-class Application(db.Model):
-    __tablename__ = 'application'
-    id = db.Column(db.Integer, primary_key=True)
-    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'), nullable=False)
-    job_id = db.Column(db.Integer, db.ForeignKey('job_posting.id'), nullable=False)
-    status = db.Column(db.String(20), default='pending')  # pending, shortlisted, rejected, hired
-    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    candidate = db.relationship('Candidate', backref='applications')
+# Initialize extensions with the app
+db.init_app(app)
+bcrypt.init_app(app)
 
 # Create tables
 with app.app_context():
     db.create_all()
+
+# ---------------------- import candidates.py----------------
+# Add at the top with other imports
+from candidate_dashboard import candidate_bp
+
+# Register blueprint (add this after db.create_all())
+app.register_blueprint(candidate_bp)
+
+# Note: `jobseeker_dashboard` route is defined later to render the jobseeker view
 
 # --------------------- Routes -------------------------
 @app.route('/')
@@ -268,6 +171,42 @@ def job_api(job_id):
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/job/<int:job_id>/details')
+def job_details_api(job_id):
+    job = JobPosting.query.get_or_404(job_id)
+    job_data = job.to_dict()
+    # add related info
+    job_data['applications'] = len(job.applications) if hasattr(job, 'applications') else 0
+    hr = User.query.get(job.hr_id)
+    job_data['hr_name'] = hr.name if hr else None
+    return jsonify(job_data)
+
+
+@app.route('/api/job/<int:job_id>/applications')
+def job_applications_api(job_id):
+    # Only HR or job owner may view applications
+    if 'user_id' not in session or session.get('user_type') != 'hr':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    job = JobPosting.query.get_or_404(job_id)
+    applications = Application.query.filter_by(job_id=job_id).join(Candidate).all()
+
+    apps_data = []
+    for a in applications:
+        apps_data.append({
+            'id': a.id,
+            'candidate_id': a.candidate_id,
+            'candidate_name': a.candidate.name if a.candidate else None,
+            'email': a.candidate.email if a.candidate else None,
+            'phone': a.candidate.phone if a.candidate else None,
+            'applied_at': a.applied_at.strftime('%Y-%m-%d %H:%M:%S') if a.applied_at else None,
+            'status': a.status,
+            'match_score': a.match_score
+        })
+
+    return jsonify({'applications': apps_data, 'count': len(apps_data)})
 
 @app.route('/api/job/<int:job_id>/toggle-status', methods=['POST'])
 def toggle_job_status(job_id):
@@ -416,7 +355,7 @@ def jobseeker_dashboard():
     if 'user_id' not in session or session['user_type'] != 'jobseeker':
         return redirect(url_for('login'))
     
-    return render_template('jobseeker_dashboard.html',
+    return render_template('candidate_dashboard.html',
                          user_name=session['user_name'])
 
 # Job Postings Routes
